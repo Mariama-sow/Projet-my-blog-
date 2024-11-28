@@ -1,0 +1,62 @@
+{% extends "Articles/Layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Détails de l'article -->
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4">Détails de l'Article : {{ article.title }}</h1>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p><strong>ID :</strong> {{ article.id }}</p>
+                    <p><strong>Titre :</strong> {{ article.title }}</p>
+                    <p><strong>Résumé :</strong> {{ article.sumary }}</p>
+                    <p><strong>Date de Publication :</strong> {{ article.date_pub }}</p>
+                    {% if article.cover %}
+                        <div class="my-3">
+                            <img src="{{ article.cover.url }}" alt="{{ article.title }}" class="img-fluid rounded">
+                        </div>
+                    {% endif %}
+                    <p><strong>Contenu :</strong> {{ article.content }}</p>
+                </div>
+            </div>
+            
+            <!-- Boutons Modifier et Supprimer pour l'utilisateur -->
+            {% if user.is_authenticated and user == article.user %}
+                <a href="{% url 'update_article' article.id %}" class="btn btn-info">Modifier</a>
+                <a href="{% url 'delete_article' article.id %}" class="btn btn-danger">Supprimer</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Formulaire d'ajout de commentaire -->
+    {% if user.is_authenticated %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <form action="{% url 'add-comment' article.id %}" method="post" class="mb-4">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form }}
+                </div>
+                <button class="btn btn-primary mt-2">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Affichage des commentaires -->
+    {% for comment in article.comment_set.all %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card text-bg-light mb-3">
+                <div class="card-header">{{ comment.owner.get_full_name }}</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ comment.created_at }}</h5>
+                    <p class="card-text">{{ comment.content }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
